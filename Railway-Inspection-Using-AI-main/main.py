@@ -46,9 +46,7 @@ def load_vlm_local():
         model = AutoModelForCausalLM.from_pretrained(
             model_id, 
             trust_remote_code=True, 
-            revision=revision,
-            device_map="auto", # Automatically uses GPU if available, else CPU
-            load_in_4bit=True  # This is the "Lightest" optimization
+            revision=revision
         )
         tokenizer = AutoTokenizer.from_pretrained(model_id, revision=revision)
         return model, tokenizer
@@ -58,6 +56,17 @@ def load_vlm_local():
 
 # Attempt to load at startup
 vlm_model, vlm_tokenizer = load_vlm_local()
+
+def calculate_severity(confidence):
+    """
+    Categorize severity based on YOLO detection confidence.
+    """
+    if confidence >= 0.75:
+        return "High"
+    elif confidence >= 0.50:
+        return "Medium"
+    else:
+        return "Low"
 
 # --- 2. UPDATED DETECTION LOGIC ---
 def analyze_with_vlm(cropped_image):
